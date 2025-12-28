@@ -100,9 +100,9 @@ public class GameWindow extends JFrame implements ActionListener {
     }
 
     public void exit() {
-        int confirm = JOptionPane.showOptionDialog(null, "Are you sure you want to exit", "Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+        int confirm = JOptionPane.showOptionDialog(null, "Are you sure you want to quit RuneEclipse", "Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
         if (confirm == JOptionPane.YES_OPTION) {
-            setTitle("Please wait, the client is closing...");
+            setTitle("Please wait, the game is closing...");
 
             if (GameWindow.getInstance() != null) {
                 /*try {

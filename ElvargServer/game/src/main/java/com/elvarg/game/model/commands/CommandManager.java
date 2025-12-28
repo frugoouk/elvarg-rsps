@@ -32,7 +32,9 @@ public class CommandManager {
         put(new TimePlayed(), "timeplayed");
         put(new GroundItemCommand(), "ground");
         put(new Store(), "store", "donate");
+        put(new HomeBuildCommand(), "homebuild");
         put(new MaxHit(), "maxhit", "mh");
+
 
         /**
          * Donators Command
@@ -94,6 +96,7 @@ public class CommandManager {
         put(new SpawnNPCCommand(), "npc");
         put(new SpawnPermanentNPCCommand(), "n");
         put(new SpawnObjectCommand(), "object");
+        put(new BuildCommand(), "build");
         put(new PositionDebug(), "coords");
         put(new ConfigCommand(), "config");
         put(new SpecCommand(), "spec");

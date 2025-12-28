@@ -2,6 +2,7 @@ package com.elvarg.net.packet.impl;
 
 import com.elvarg.game.content.clan.ClanChatManager;
 import com.elvarg.game.entity.impl.player.Player;
+import com.elvarg.game.entity.impl.playerbot.PlayerBot; // IMPORT ADDED
 import com.elvarg.game.model.ChatMessage;
 import com.elvarg.net.packet.Packet;
 import com.elvarg.net.packet.PacketConstants;
@@ -36,28 +37,45 @@ public class ChatPacketListener implements PacketExecutor {
     @Override
     public void execute(Player player, Packet packet) {
         switch (packet.getOpcode()) {
-        case PacketConstants.CLAN_CHAT_OPCODE:
-            String clanMessage = packet.readString();
-            if (!allowChat(player, clanMessage)) {
-                return;
-            }
-            ClanChatManager.sendMessage(player, clanMessage);
-            break;
-        case PacketConstants.REGULAR_CHAT_OPCODE:
-            int size = packet.getSize() - 2;
-            int color = packet.readByteS();
-            int effect = packet.readByteS();
-            byte[] text = packet.readReversedBytesA(size);
-            String chatMessage = Misc.ucFirst(Misc.textUnpack(text, size).toLowerCase());
+            case PacketConstants.CLAN_CHAT_OPCODE:
+                String clanMessage = packet.readString();
+                if (!allowChat(player, clanMessage)) {
+                    return;
+                }
+                ClanChatManager.sendMessage(player, clanMessage);
+                break;
 
-            if (!allowChat(player, chatMessage)) {
-                return;
-            }
-            if (player.getChatMessageQueue().size() >= 5) {
-                return;
-            }
-            player.getChatMessageQueue().add(new ChatMessage(color, effect, text));
-            break;
+            case PacketConstants.REGULAR_CHAT_OPCODE:
+                int size = packet.getSize() - 2;
+                int color = packet.readByteS();
+                int effect = packet.readByteS();
+                byte[] text = packet.readReversedBytesA(size);
+
+                // This converts the raw bytes into readable text (e.g., "Hi Josh")
+                String chatMessage = Misc.ucFirst(Misc.textUnpack(text, size).toLowerCase());
+
+                if (!allowChat(player, chatMessage)) {
+                    return;
+                }
+                if (player.getChatMessageQueue().size() >= 5) {
+                    return;
+                }
+
+                // 1. Add message to player's chat queue so real players see it
+                player.getChatMessageQueue().add(new ChatMessage(color, effect, text));
+
+                // 2. --- BOT FIX: FORCE BOTS TO LISTEN ---
+                // We loop through everyone standing near you
+                for (Player local : player.getLocalPlayers()) {
+                    // If the nearby player is a Bot...
+                    if (local instanceof PlayerBot) {
+                        // ... Force them to process the message immediately!
+                        ((PlayerBot) local).getChatInteraction().handleReceivedMessage(player, chatMessage);
+                    }
+                }
+                // ----------------------------------------
+
+                break;
         }
     }
 }

@@ -143,14 +143,17 @@ public class GameConstants {
 			1704, 1731, 1725, 1727, 1729));
 
 	public static final PlayerBotDefinition[] PLAYER_BOTS = new PlayerBotDefinition[]{
-			new PlayerBotDefinition("Bot Hello123", new Location(3085, 3528), new ObbyMaulerFighterPreset()),
+			new PlayerBotDefinition("Hello123", new Location(3085, 3528), new ObbyMaulerFighterPreset()),
 			new PlayerBotDefinition("Elvemage", new Location(3093, 3529), new NHPureFighterPreset()),
-			new PlayerBotDefinition("Bot 1337Pk", new Location(3087, 3530),  new DDSPureRFighterPreset()),
-			new PlayerBotDefinition("Bot Kids Ranqe", new Location(3089, 3530), new GRangerFighterPreset()),
-			new PlayerBotDefinition("Bot Josh", new Location(3091, 3533), new DDSPureMFighterPreset()),
-			new PlayerBotDefinition("Bot Odablock", new Location(3091, 3536), new TribridMaxFighterPreset()),
-			new PlayerBotDefinition("Bot SKillSpecs", new Location(3095, 3535), new MidTribridMaxFighterPreset()),
-			new PlayerBotDefinition("Bot F2P Pure", new Location(3096, 3530), new F2PMeleeFighterPreset()),
+			new PlayerBotDefinition("1337Pk", new Location(3087, 3530),  new DDSPureRFighterPreset()),
+			new PlayerBotDefinition("Kids Ranqe", new Location(3089, 3530), new GRangerFighterPreset()),
+			new PlayerBotDefinition("Josh", new Location(3091, 3533), new DDSPureMFighterPreset()),
+			new PlayerBotDefinition("Odablock", new Location(3091, 3536), new TribridMaxFighterPreset()),
+			new PlayerBotDefinition("SKillSpecs", new Location(3095, 3535), new MidTribridMaxFighterPreset()),
+			new PlayerBotDefinition("F2P Pure", new Location(3096, 3530), new F2PMeleeFighterPreset()),
+			new PlayerBotDefinition("Fat Zezima", new Location(3097, 3530), new F2PMeleeFighterPreset()),
+			new PlayerBotDefinition("Bob", new Location(3098, 3530), new F2PMeleeFighterPreset()),
+			new PlayerBotDefinition("Fish Tits", new Location(3099, 3530), new F2PMeleeFighterPreset()),
 	};
 
 	// The password for every player bot account

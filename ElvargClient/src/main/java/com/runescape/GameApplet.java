@@ -215,6 +215,7 @@ public class GameApplet extends Applet implements Runnable, MouseListener, Mouse
                 shouldDebug = false;
                 i1 = 0;
             }
+            Client.loggedIn = false;
         } while (true);
         if (anInt4 == -1) {
             exit();

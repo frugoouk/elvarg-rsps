@@ -116,6 +116,12 @@ public class Player extends Mobile {
 	/*
 	 * Fields
 	 */
+	// List to store our home furniture
+	private List<HouseFurniture> myHouse = new ArrayList<>();
+
+	public List<HouseFurniture> getHouse() {
+		return myHouse;
+	}
 	private final SecondsTimer targetSearchTimer = new SecondsTimer();
 	private final List<String> recentKills = new ArrayList<String>(); // Contains ip addresses of recent kills
 	private final Queue<ChatMessage> chatMessageQueue = new ConcurrentLinkedQueue<>();

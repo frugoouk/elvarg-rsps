@@ -13,12 +13,14 @@ import com.elvarg.game.model.SkullType;
 import com.elvarg.game.model.container.impl.Bank;
 import com.elvarg.game.model.rights.DonatorRights;
 import com.elvarg.game.model.rights.PlayerRights;
+import com.elvarg.game.entity.impl.player.HouseFurniture;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class PlayerSave {
+    private List<HouseFurniture> houseFurniture;
     private String passwordHashWithSalt;
     private boolean isDiscordLogin;
     private String cachedDiscordAccessToken;
@@ -516,6 +518,11 @@ public class PlayerSave {
     }
 
     public void applyToPlayer(Player player) {
+        // LOAD HOUSE
+        if (this.houseFurniture != null) {
+            // We use the simple name "HouseFurniture" because we imported it at the top
+            player.getHouse().addAll(this.houseFurniture);
+        }
         player.setPasswordHashWithSalt(this.passwordHashWithSalt);
         player.setDiscordLogin(this.isDiscordLogin);
         player.setCachedDiscordAccessToken(this.cachedDiscordAccessToken);
@@ -603,7 +610,8 @@ public class PlayerSave {
 
     public static PlayerSave fromPlayer(Player player) {
         var playerSave = new PlayerSave();
-
+// SAVE HOUSE
+        playerSave.houseFurniture = player.getHouse();
         playerSave.passwordHashWithSalt = player.getPasswordHashWithSalt().trim();
         playerSave.isDiscordLogin = player.isDiscordLogin();
         playerSave.cachedDiscordAccessToken = player.getCachedDiscordAccessToken();

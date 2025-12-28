@@ -19,7 +19,7 @@ public final class Configuration {
     /**
      * A string which indicates the Client's name.
      */
-    public static final String CLIENT_NAME = "Elvarg";
+    public static final String CLIENT_NAME = "RuneEclipse07";
     /**
      * npcBits can be changed to what your server's bits are set to.
      */

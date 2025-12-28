@@ -154,8 +154,12 @@ public class PlayerBot extends Player {
 
     @Override
     public void process() {
-        this.combatInteraction.process();
-        super.process();
+        super.process(); // Keep existing processing
+
+        // Add this line to make the Chat Timer work:
+        if (chatInteraction != null) {
+            chatInteraction.process();
+        }
     }
 
     @Override

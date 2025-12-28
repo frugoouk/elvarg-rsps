@@ -75,8 +75,10 @@ import java.util.zip.Deflater;
 
 public class Client extends GameApplet {
 
+    private java.awt.image.BufferedImage antiFlickerBuffer; // Unique name!    public static final int TOTAL_ARCHIVES = 9;
     public static final int TOTAL_ARCHIVES = 9;
-    public static final int TITLE_ARCHIVE = 1;
+    public static String loginMessage1 = "Welcome to RuneEclipse";
+    public static String loginMessage2 = "";
     public static final int CONFIG_ARCHIVE = 2;
     public static final int INTERFACE_ARCHIVE = 3;
     public static final int MEDIA_ARCHIVE = 4;
@@ -5035,6 +5037,7 @@ public class Client extends GameApplet {
     }
 
     private void loadTitleScreen() {
+        if (true) return;
         titleBoxIndexedImage = new IndexedImage(titleArchive, "titlebox", 0);
         titleButtonIndexedImage = new IndexedImage(titleArchive, "titlebutton", 0);
 
@@ -5127,7 +5130,7 @@ public class Client extends GameApplet {
     private void loadingStages() {
         if (lowMemory && loadingStage == 2 && MapRegion.anInt131 != plane) {
             gameScreenImageProducer.initDrawingArea();
-            drawLoadingMessages(1, "Loading - please wait.", null);
+            drawLoadingMessages(1, "Loading - Game Engine starting...", null);
             gameScreenImageProducer.drawGraphics(frameMode == ScreenMode.FIXED ? 4 : 0,
                     super.graphics, frameMode == ScreenMode.FIXED ? 4 : 0);
             loadingStage = 1;
@@ -5240,6 +5243,7 @@ public class Client extends GameApplet {
     }
 
     private void drawLogo() {
+        if (true) return;
         byte[] sprites = titleArchive.readFile("title.dat");
         Sprite sprite = new Sprite(sprites, this);
         flameLeftBackground.initDrawingArea();
@@ -5743,40 +5747,65 @@ public class Client extends GameApplet {
         welcomeScreenRaised = true;
     }
 
-    public void drawLoadingText(int i, String s) {
-        anInt1079 = i;
-        aString1049 = s;
-        setupLoginScreen();
-        if (titleArchive == null) {
-            super.drawLoadingText(i, s);
-            return;
-        }
-        loginBoxImageProducer.initDrawingArea();
-        char c = '\u0168';
-        char c1 = '\310';
-        byte byte1 = 20;
-        boldText.drawText(0xffffff, Configuration.CLIENT_NAME + " is loading - please wait...",
-                c1 / 2 - 26 - byte1, c / 2);
-        int j = c1 / 2 - 18 - byte1;
-        Rasterizer2D.drawBoxOutline(c / 2 - 152, j, 304, 34, 0x8c1111);
-        Rasterizer2D.drawBoxOutline(c / 2 - 151, j + 1, 302, 32, 0);
-        Rasterizer2D.drawBox(c / 2 - 150, j + 2, i * 3, 30, 0x8c1111);
-        Rasterizer2D.drawBox((c / 2 - 150) + i * 3, j + 2, 300 - i * 3, 30, 0);
-        boldText.drawText(0xffffff, s, (c1 / 2 + 5) - byte1, c / 2);
-        loginBoxImageProducer.drawGraphics(171, super.graphics, 202);
-        if (welcomeScreenRaised) {
-            welcomeScreenRaised = false;
-            if (!aBoolean831) {
-                flameLeftBackground.drawGraphics(0, super.graphics, 0);
-                flameRightBackground.drawGraphics(0, super.graphics, 637);
+    // --- MODERN LOADING SCREEN (Replaces drawLoadingText) ---
+    void drawLoadingText(int percentage, String message) {
+        // 1. HUGE BOUNDS FIX: Force background to cover everything
+        Rasterizer2D.setDrawingArea(5000, 0, 5000, 0);
+
+        // 2. Draw the Background Wallpaper
+        // (Make sure the background loader is still at the bottom of your file!)
+        drawCustomBackground();
+
+        // 3. Setup the Canvas for the Bar
+        int screenW = super.myWidth;
+        int screenH = super.myHeight;
+        if (screenW < 765) screenW = 765; // Safety default
+        if (screenH < 503) screenH = 503;
+
+        // Reset clipping so we can draw the UI
+        Rasterizer2D.setDrawingArea(screenH, 0, screenW, 0);
+
+        // --- CONFIGURATION (Customize Colors Here) ---
+        int barWidth = 400;   // Bar Width
+        int barHeight = 30;   // Bar Height
+        int barX = (screenW / 2) - (barWidth / 2); // Center X
+        int barY = (screenH / 2) + 60;             // Center Y (Adjust +60 to move up/down)
+
+        int colorBorder = 0xD4A017;   // Gold Outline
+        int colorBg     = 0x101010;   // Dark Background
+        int colorFill   = 0xB8860B;   // Rich Gold Fill
+        int colorGlow   = 0xFFD700;   // Bright Gold Tip
+
+        // 4. Draw the Container (Empty Box)
+        Rasterizer2D.fillRectangle(barX, barY, barWidth, barHeight, colorBg);
+        Rasterizer2D.drawBoxOutline(barX, barY, barWidth, barHeight, colorBorder);
+        Rasterizer2D.drawTransparentBox(barX + 1, barY + 1, barWidth - 2, barHeight - 2, 0x000000, 100);
+
+        // 5. Draw the Progress Fill
+        int fillWidth = (percentage * (barWidth - 4)) / 100;
+
+        if (fillWidth > 0) {
+            // Fill
+            Rasterizer2D.fillRectangle(barX + 2, barY + 2, fillWidth, barHeight - 4, colorFill);
+            // Glass Shine
+            Rasterizer2D.drawTransparentBox(barX + 2, barY + 2, fillWidth, (barHeight / 2), 0xFFFFFF, 30);
+            // Glow Tip
+            if (fillWidth > 2) {
+                Rasterizer2D.fillRectangle(barX + 2 + fillWidth - 2, barY + 2, 2, barHeight - 4, colorGlow);
             }
-            topLeft1BackgroundTile.drawGraphics(0, super.graphics, 128);
-            bottomLeft1BackgroundTile.drawGraphics(371, super.graphics, 202);
-            bottomLeft0BackgroundTile.drawGraphics(265, super.graphics, 0);
-            bottomRightImageProducer.drawGraphics(265, super.graphics, 562);
-            loginMusicImageProducer.drawGraphics(265, super.graphics, 562);
-            middleLeft1BackgroundTile.drawGraphics(171, super.graphics, 128);
-            aRSImageProducer_1115.drawGraphics(171, super.graphics, 562);
+        }
+
+        // 6. Draw Text
+        // Use 'newRegularFont' or 'newFont' or 'smallFont' - whichever isn't red
+        RSFont font = newBoldFont;
+
+        if (font != null) {
+            // Draw Message (e.g. "Starting Up")
+            font.drawCenteredString(message, barX + (barWidth / 2), barY - 10, 0xD4A017, 0);
+
+            // Draw Percentage
+            String percentText = percentage + "%";
+            font.drawCenteredString(percentText, barX + (barWidth / 2), barY + 20, 0xFFFFFF, 0);
         }
     }
 
@@ -7179,11 +7208,8 @@ public class Client extends GameApplet {
     }
 
     public void run() {
-        if (drawFlames) {
-            drawFlames();
-        } else {
-            super.run();
-        }
+        // Just run the standard game loop
+        super.run();
     }
 
     private void createMenu() {
@@ -9225,7 +9251,6 @@ public class Client extends GameApplet {
             if (!reconnecting) {
                 firstLoginMessage = "";
                 secondLoginMessage = "Connecting to server...";
-                drawLoginScreen(true);
             }
 
             socketStream = new BufferedConnection(this,
@@ -9237,7 +9262,42 @@ public class Client extends GameApplet {
 
             IsaacCipher cipher = null;
 
+// ==================================================
+            // --- THE LOUD LISTENER (Paste this in 'login') ---
+            // ==================================================
+
+            // 1. Read the Server's Reply
             int response = socketStream.read();
+
+            // 2. PRINT IT TO THE CONSOLE (So we can see it!)
+            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            System.out.println("SERVER RESPONSE ID: " + response);
+            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
+            // 3. Handle SUCCESS (Code 2)
+            if (response == 2 || response == 0) {
+                System.out.println("[DEBUG] Success! Entering game world...");
+
+                // Read rights (Mod/Admin)
+                myPrivilege = socketStream.read();
+                socketStream.read(); // Read flagged status
+
+                // FORCE ENTRY
+                loggedIn = true;
+                loginMessage1 = ""; // Clear the "Logging in" text
+                return;
+            }
+
+            // 4. Handle FAILURE (Codes 3-20)
+            if (response != 2) {
+                System.out.println("[DEBUG] Login Failed. Reason Code: " + response);
+                if (response == 3) loginMessage1 = "Invalid username/password.";
+                else if (response == -1) loginMessage1 = "Server is offline.";
+                else loginMessage1 = "Login failed: Code " + response;
+                return;
+            }
+            // ==================================================
+            // ==================================================
 
             int copy = response;
 
@@ -9374,134 +9434,94 @@ public class Client extends GameApplet {
                 frameMode(frameMode);
                 return;
             }
-            if (response == 28) {
-                firstLoginMessage = "Username or password contains illegal";
-                secondLoginMessage = "characters. Try other combinations.";
+            // --- PASTE THIS IN THE "login" METHOD WHERE IT CHECKS RESPONSE CODES ---
+
+            // --- CORRECTED RESPONSE BLOCK (Uses 'response' instead of 'k') ---
+// --- SUCCESS HANDLER (Code 2) ---
+// --- SAFE SUCCESS HANDLER ---
+            if (response == 2) {
+                // 1. Debug Print: Confirm we got here
+                System.out.println("[DEBUG] Login Accepted (Response 2). entering game...");
+
+                // 2. Try to read rights, but DON'T freeze if it fails
+                try {
+                    if (socketStream.available() > 0) {
+                        myPrivilege = socketStream.read();
+                        socketStream.read(); // Read flagged status
+                    } else {
+                        System.out.println("[DEBUG] No rights data sent by server. Defaulting to 0.");
+                    }
+                } catch (Exception e) {
+                    System.out.println("[DEBUG] Error reading rights: " + e.getMessage());
+                }
+
+                // 3. FORCE THE SWITCH
+                loggedIn = true;
+
+                // 4. Reset the login screen message so it doesn't persist
+                loginMessage1 = "";
+
                 return;
             }
-            if (response == 30) {
-                firstLoginMessage = "Old client usage detected.";
-                secondLoginMessage = "Please download the latest one.";
-                MiscUtils.launchURL("http://www.aqp.io");
-                return;
-            }
+            // --------------------------------
             if (response == 3) {
-                firstLoginMessage = "";
-                secondLoginMessage = "Invalid username or password.";
+                loginMessage1 = "Invalid username or password.";
+                loginMessage2 = "";
                 return;
             }
             if (response == 4) {
-                firstLoginMessage = "Your account has been banned.";
-                secondLoginMessage = "";
-                return;
-            }
-            if (response == 22) {
-                firstLoginMessage = "Your computer has been banned.";
-                secondLoginMessage = "";
-                return;
-            }
-            if (response == 27) {
-                firstLoginMessage = "Your host-address has been banned.";
-                secondLoginMessage = "";
+                loginMessage1 = "Your account has been disabled.";
+                loginMessage2 = "Please check your message-center for details.";
                 return;
             }
             if (response == 5) {
-                firstLoginMessage = "Your account is already logged in.";
-                secondLoginMessage = "Try again in 60 secs...";
+                loginMessage1 = "Your account is already logged in.";
+                loginMessage2 = "Try again in 60 secs...";
                 return;
             }
             if (response == 6) {
-                firstLoginMessage = Configuration.CLIENT_NAME + " is being updated.";
-                secondLoginMessage = "Try again in 60 secs...";
+                loginMessage1 = "RuneEclipse has been updated!";
+                loginMessage2 = "Please reload this page.";
                 return;
             }
             if (response == 7) {
-                firstLoginMessage = "The world is currently full.";
-                secondLoginMessage = "";
+                loginMessage1 = "This world is full.";
+                loginMessage2 = "Please use a different world.";
                 return;
             }
             if (response == 8) {
-                firstLoginMessage = "Unable to connect.";
-                secondLoginMessage = "Login server offline.";
+                loginMessage1 = "Unable to connect.";
+                loginMessage2 = "Login server offline.";
                 return;
             }
             if (response == 9) {
-                firstLoginMessage = "Login limit exceeded.";
-                secondLoginMessage = "Too many connections from your address.";
+                loginMessage1 = "Login limit exceeded.";
+                loginMessage2 = "Too many connections from your address.";
                 return;
             }
             if (response == 10) {
-                firstLoginMessage = "Unable to connect. Bad session id.";
-                secondLoginMessage = "Try again in 60 secs...";
+                loginMessage1 = "Unable to connect.";
+                loginMessage2 = "Bad session id.";
                 return;
             }
             if (response == 11) {
-                secondLoginMessage = "Login server rejected session.";
-                secondLoginMessage = "Try again in 60 secs...";
+                loginMessage1 = "We suspect someone knows your password.";
+                loginMessage2 = "Press 'change your password' on front page.";
                 return;
             }
             if (response == 12) {
-                firstLoginMessage = "You need a members account to login to this world.";
-                secondLoginMessage = "Please subscribe, or use a different world.";
+                loginMessage1 = "You need a members account to login";
+                loginMessage2 = "to this world. Please subscribe, or use";
                 return;
             }
             if (response == 13) {
-                firstLoginMessage = "Could not complete login.";
-                secondLoginMessage = "Please try using a different world.";
+                loginMessage1 = "Could not complete login.";
+                loginMessage2 = "Please try using a different world.";
                 return;
             }
             if (response == 14) {
-                firstLoginMessage = "The server is being updated.";
-                secondLoginMessage = "Please wait 1 minute and try again.";
-                return;
-            }
-            if (response == 15) {
-                loggedIn = true;
-                incoming.currentPosition = 0;
-                opcode = -1;
-                lastOpcode = -1;
-                secondLastOpcode = -1;
-                thirdLastOpcode = -1;
-                packetSize = 0;
-                timeoutCounter = 0;
-                systemUpdateTime = 0;
-                menuActionRow = 0;
-                menuOpen = false;
-                loadingStartTime = System.currentTimeMillis();
-                return;
-            }
-            if (response == 16) {
-                firstLoginMessage = "Login attempts exceeded.";
-                secondLoginMessage = "Please wait 1 minute and try again.";
-                return;
-            }
-            if (response == 17) {
-                firstLoginMessage = "You are standing in a members-only area.";
-                secondLoginMessage = "To play on this world move to a free area first";
-                return;
-            }
-            if (response == 20) {
-                firstLoginMessage = "Invalid loginserver requested";
-                secondLoginMessage = "Please try using a different world.";
-                return;
-            }
-            if (response == 21) {
-                for (int k1 = socketStream.read(); k1 >= 0; k1--) {
-                    firstLoginMessage = "You have only just left another world";
-                    secondLoginMessage =
-                            "Your profile will be transferred in: " + k1 + " seconds";
-                    drawLoginScreen(true);
-                    try {
-                        Thread.sleep(1000L);
-                    } catch (Exception _ex) {
-                    }
-                }
-                login(name, password, reconnecting);
-                return;
-            }
-            if (response == 22) {
-                firstLoginMessage = "Your computer has been UUID banned.";
-                secondLoginMessage = "Please appeal on the forums.";
+                loginMessage1 = "The server is being updated.";
+                loginMessage2 = "Please wait 1 minute and try again.";
                 return;
             }
             if (response == -1) {
@@ -11734,6 +11754,7 @@ public class Client extends GameApplet {
                         sendMessage(text, 1, crownPrefix + player.name);
 
                     } catch (Exception exception) {
+                        loginMessage1 = "Error connecting to server.";
                         System.out.println("cde2");
                     }
             }
@@ -11871,26 +11892,8 @@ public class Client extends GameApplet {
         }
     }
 
-    public void processDrawing() {
-        if (rsAlreadyLoaded || loadingError || genericLoadingError) {
-            showErrorScreen();
-            return;
-        }
-        if (!loggedIn)
-            drawLoginScreen(false);
-        else
-            drawGameScreen();
-        anInt1213 = 0;
-    }
 
-    private boolean isFriendOrSelf(String s) {
-        if (s == null)
-            return false;
-        for (int i = 0; i < friendsCount; i++)
-            if (s.equalsIgnoreCase(friendsList[i]))
-                return true;
-        return s.equalsIgnoreCase(localPlayer.name);
-    }
+
 
     private void setWaveVolume(int i) {
         //SignLink.wavevol = i;
@@ -13248,153 +13251,6 @@ public class Client extends GameApplet {
         }
     }
 
-    private void loginScreenAccessories() {
-        /*
-         * World-selection
-         */
-        setupLoginScreen();
-
-        loginScreenAccessories.drawGraphics(400, super.graphics, 0);
-        loginScreenAccessories.initDrawingArea();
-        spriteCache.draw(57, 6, 63);
-
-        boldText.method382(0xffffff, 55, "World 1", 78, true);
-        smallText.method382(0xffffff, 55, "Main world", 92, true);
-
-        loginMusicImageProducer.drawGraphics(265, super.graphics, 562);
-        loginMusicImageProducer.initDrawingArea();
-        spriteCache.draw(Configuration.enableMusic ? 58 : 59, 158, 196);
-
-    }
-
-    private void drawLoginScreen(boolean flag) {
-        setupLoginScreen();
-        loginBoxImageProducer.initDrawingArea();
-        titleBoxIndexedImage.draw(0, 0);
-        char c = '\u0168';
-        char c1 = '\310';
-        if (loginScreenState == 0) {
-            int i = c1 / 2 + 80;
-            //smallText.method382(0x75a9a9, c / 2, resourceProvider.loadingMessage, i, true);
-            i = c1 / 2 - 20;
-            boldText.method382(0xffff00, c / 2, "Welcome to " + Configuration.CLIENT_NAME, i, true);
-            i += 30;
-            int l = c / 2 - 80;
-            int k1 = c1 / 2 + 20;
-            titleButtonIndexedImage.draw(l - 73, k1 - 20);
-            boldText.method382(0xffffff, l, "Discord Login", k1 + 5, true);
-            l = c / 2 + 80;
-            titleButtonIndexedImage.draw(l - 73, k1 - 20);
-            boldText.method382(0xffffff, l, "Existing User", k1 + 5, true);
-        }
-        if (loginScreenState == 1) {
-            int j = c1 / 2 - 45;
-
-            boldText.method382(0x5865F2, c / 2, "Discord Integration", j, true);
-            j += 30;
-            if (firstLoginMessage.length() > 0) {
-                boldText.method382(0xffff00, c / 2, firstLoginMessage, j, true);
-                j += 15;
-                boldText.method382(0xffff00, c / 2, secondLoginMessage, j, true);
-            } else {
-                boldText.method382(0xffff00, c / 2, secondLoginMessage, j - 7, true);
-            }
-        }
-        if (loginScreenState == 2) {
-            int j = c1 / 2 - 45;
-            if (firstLoginMessage.length() > 0) {
-                boldText.method382(0xffff00, c / 2, firstLoginMessage, j - 15, true);
-                boldText.method382(0xffff00, c / 2, secondLoginMessage, j, true);
-                j += 25;
-            } else {
-                boldText.method382(0xffff00, c / 2, secondLoginMessage, j - 7, true);
-                j += 25;
-            }
-
-            boldText.drawTextWithPotentialShadow(true, c / 2 - 90, 0xffffff, "Login: " + myUsername
-                            + ((loginScreenCursorPos == 0) & (tick % 40 < 20)
-                            ? "@yel@|" : ""),
-                    j);
-            j += 15;
-            boldText.drawTextWithPotentialShadow(true, c / 2 - 90, 0xffffff,
-                    "Password: " + StringUtils.passwordAsterisks(myPassword)
-                            + ((loginScreenCursorPos == 1) & (tick % 40 < 20)
-                            ? "@yel@|" : ""),
-                    j);
-            j += 15;
-
-            // Remember me
-            rememberUsernameHover = mouseInRegion(269, 284, 279, 292);
-            if (rememberUsername) {
-                spriteCache.draw(rememberUsernameHover ? 346 : 348, 67, 108, true);
-            } else {
-                spriteCache.draw(rememberUsernameHover ? 345 : 347, 67, 108, true);
-            }
-            smallText.method382(0xffff00, 136, "Remember username", 120, true);
-
-            // Hide username
-            rememberPasswordHover = mouseInRegion(410, 425, 279, 292);
-            if (rememberPassword) {
-                spriteCache.draw(rememberPasswordHover ? 346 : 348, 208, 108, true);
-            } else {
-                spriteCache.draw(rememberPasswordHover ? 345 : 347, 208, 108, true);
-            }
-            smallText.method382(0xffff00, 276, "Remember password", 120, true);
-
-            forgottenPasswordHover = mouseInRegion(288, 471, 346, 357);
-            smallText.method382(0xffff00, 178, "Forgotten your password? @whi@Click here.", 186, true);
-
-            if (!flag) {
-                int i1 = c / 2 - 80;
-                int l1 = c1 / 2 + 50;
-                titleButtonIndexedImage.draw(i1 - 73, l1 - 20);
-                boldText.method382(0xffffff, i1, "Login", l1 + 5, true);
-                i1 = c / 2 + 80;
-                titleButtonIndexedImage.draw(i1 - 73, l1 - 20);
-                boldText.method382(0xffffff, i1, "Cancel", l1 + 5, true);
-            }
-        }
-        loginBoxImageProducer.drawGraphics(171, super.graphics, 202);
-        if (welcomeScreenRaised) {
-            welcomeScreenRaised = false;
-            topLeft1BackgroundTile.drawGraphics(0, super.graphics, 128);
-            bottomLeft1BackgroundTile.drawGraphics(371, super.graphics, 202);
-            bottomLeft0BackgroundTile.drawGraphics(265, super.graphics, 0);
-            bottomRightImageProducer.drawGraphics(265, super.graphics, 562);
-            middleLeft1BackgroundTile.drawGraphics(171, super.graphics, 128);
-            aRSImageProducer_1115.drawGraphics(171, super.graphics, 562);
-        }
-        loginScreenAccessories();
-    }
-
-    private void drawFlames() {
-        drawingFlames = true;
-        try {
-            long l = System.currentTimeMillis();
-            int i = 0;
-            int j = 20;
-            while (aBoolean831) {
-                calcFlamesPosition();
-                doFlamesDrawing();
-                if (++i > 10) {
-                    long l1 = System.currentTimeMillis();
-                    int k = (int) (l1 - l) / 10 - j;
-                    j = 40 - k;
-                    if (j < 5)
-                        j = 5;
-                    i = 0;
-                    l = l1;
-                }
-                try {
-                    Thread.sleep(j);
-                } catch (Exception _ex) {
-                }
-            }
-        } catch (Exception _ex) {
-        }
-        drawingFlames = false;
-    }
-
     public void raiseWelcomeScreen() {
         welcomeScreenRaised = true;
     }
@@ -13732,138 +13588,60 @@ public class Client extends GameApplet {
     }
 
     private void processLoginScreenInput() {
-        if (loading)
-            return;
-        if (loginScreenState == 0) {
-            if (super.clickMode3 == 1) {
-                if (mouseInRegion(394, 530, 275, 307)) {
-                    firstLoginMessage = "";
-                    secondLoginMessage = "Enter your username & password.";
-                    loginScreenState = 2;
-                    if (myUsername.length() == 0) {
-                        loginScreenCursorPos = 0;
-                    }
-                } else if (mouseInRegion(229, 375, 271, 312)) {
-                    if (!Configuration.DiscordConfiguration.ENABLE_DISCORD_OAUTH_LOGIN)
-                        return;
+        // 1. Handle Mouse Clicks (WIDENED CLICK ZONES)
+        // If the mouse was clicked...
+        if (super.clickMode3 == 1) {
+            int x = super.saveClickX;
+            int y = super.saveClickY;
 
-                    canUseCachedToken = true;
-                    loginScreenState = 1;
-
-                    if (discordToken.length() > 0) {
-                        // We already have a Discord token available
-                        return;
-                    }
-
-                    DiscordOAuth.getInstance().setCallback((code) -> {
-                        discordCode = code;
-                        firstLoginMessage = "Authenticating with server...";
-                        return null;
-                    });
-
-                    MiscUtils.launchURL(DiscordOAuth.getOAuthUrl());
-                    firstLoginMessage = "Waiting for OAuth...";
-                    secondLoginMessage = "";
-                } else if (mouseInRegion(720, 754, 460, 492)) {
-                    handleMuteMusic();
-                }
-            }
-        } else if (loginScreenState == 1) {
-            if (discordCode != null) {
-                login("authz_code", discordCode, false, true);
-                discordCode = null;
-                return;
-            } else if (discordToken.length() > 0 && canUseCachedToken) {
-                login("cached_token", discordToken, false, true);
-                canUseCachedToken = false;
-
-                return;
-            }
-        } else if (loginScreenState == 2) {
-            if (super.clickMode3 == 1) {
-                if (rememberUsernameHover) {
-                    rememberUsername = !rememberUsername;
-                    savePlayerData();
-                } else if (rememberPasswordHover) {
-                    rememberPassword = !rememberPassword;
-                    savePlayerData();
-                } else if (forgottenPasswordHover) {
-                    MiscUtils.launchURL("www.aqp.io");
-                } else if (mouseInRegion(720, 754, 460, 492)) {
-                    /** Handles clicking once typing login info **/
-                    handleMuteMusic();
-                }
-            }
-            int j = super.myHeight / 2 - 45;
-            j += 25;
-            j += 25;
-
-            if (super.clickMode3 == 1 && super.saveClickY >= 239 && super.saveClickY < 252)
+            // Username Box Area (Top Half) - Made area bigger/easier to click
+            if (x >= 230 && x <= 535 && y >= 160 && y <= 235) {
                 loginScreenCursorPos = 0;
-            j += 15;
-            if (super.clickMode3 == 1 && super.saveClickY >= 257 && super.saveClickY < 266)
+            }
+            // Password Box Area (Bottom Half) - Made area bigger
+            else if (x >= 230 && x <= 535 && y >= 236 && y <= 310) {
                 loginScreenCursorPos = 1;
-            j += 15;
-            int i1 = super.myWidth;
-            int k1 = super.myHeight;
-            k1 += 20;
-
-            // login
-            if (super.clickMode3 == 1 && mouseInRegion(235, 370, 305, 339)) {
-                loginFailures = 0;
-                login(myUsername, myPassword, false);
-                savePlayerData();
-                if (loggedIn)
-                    return;
             }
-
-            i1 = super.myWidth / 2 + 80;
-
-            // cancel
-            if (super.clickMode3 == 1 && mouseInRegion(394, 530, 305, 339)) {
-                loginScreenState = 0;
-            }
-            do {
-                int l1 = readChar(-796);
-                if (l1 == -1)
-                    break;
-                boolean flag1 = false;
-                for (int i2 = 0; i2 < validUserPassChars.length(); i2++) {
-                    if (l1 != validUserPassChars.charAt(i2))
-                        continue;
-                    flag1 = true;
-                    break;
-                }
-
-                if (loginScreenCursorPos == 0) {
-                    if (l1 == 8 && myUsername.length() > 0)
-                        myUsername = myUsername.substring(0, myUsername.length() - 1);
-                    if (l1 == 9 || l1 == 10 || l1 == 13)
-                        loginScreenCursorPos = 1;
-                    if (flag1)
-                        myUsername += (char) l1;
-                    if (myUsername.length() > 12)
-                        myUsername = myUsername.substring(0, 12);
-                    if (myUsername.length() > 0) {
-                        myUsername = StringUtils.formatText(StringUtils.capitalize(myUsername));
-                    }
-                } else if (loginScreenCursorPos == 1) {
-                    if (l1 == 8 && myPassword.length() > 0)
-                        myPassword = myPassword.substring(0, myPassword.length() - 1);
-                    if (l1 == 9) {
-                        loginScreenCursorPos = 0;
-                    } else if (l1 == 10 || l1 == 13) {
-                        login(myUsername, myPassword, false);
-                        return;
-                    }
-                    if (flag1)
-                        myPassword += (char) l1;
-                    if (myPassword.length() > 15)
-                        myPassword = myPassword.substring(0, 15);
-                }
-            } while (true);
-            return;
         }
+
+        // 2. Handle Keyboard Loop
+        do {
+            int key = readChar(-1);
+            if (key == -1) break;
+
+            // --- TAB KEY (Toggle Back and Forth) ---
+            if (key == 9) {
+                // Swaps 0 to 1, or 1 to 0
+                loginScreenCursorPos = (loginScreenCursorPos == 0) ? 1 : 0;
+            }
+
+// --- ENTER KEY (Login) ---
+            if (key == 10) {
+                if (myUsername.length() > 0 && myPassword.length() > 0) {
+
+                    // ADD THIS LINE:
+                    loginMessage1 = "Logging in...";
+
+                    login(myUsername, myPassword, false);
+                }
+            }
+
+            // --- BACKSPACE ---
+            if (key == 8) {
+                if (loginScreenCursorPos == 0 && myUsername.length() > 0)
+                    myUsername = myUsername.substring(0, myUsername.length() - 1);
+                if (loginScreenCursorPos == 1 && myPassword.length() > 0)
+                    myPassword = myPassword.substring(0, myPassword.length() - 1);
+            }
+
+            // --- TYPING ---
+            if ((key >= 32 && key <= 122) || key == 32) {
+                String validChar = String.valueOf((char) key);
+                if (loginScreenCursorPos == 0 && myUsername.length() < 12) myUsername += validChar;
+                else if (loginScreenCursorPos == 1 && myPassword.length() < 20) myPassword += validChar;
+            }
+
+        } while (true);
     }
 
     private void handleMuteMusic() {
@@ -15954,4 +15732,187 @@ public class Client extends GameApplet {
         INVENTORY,
         BANK
     }
+    /**
+     * RUNE ECLIPSE 07 - MODERN LOGIN BOX
+     * Draws a sleek glass panel with a golden eclipse border.
+     */
+    private void drawRuneEclipseLoginBox(int centerX, int centerY) {
+        int boxWidth = 360;
+        int boxHeight = 200;
+        int boxX = centerX - (boxWidth / 2);
+        int boxY = centerY - (boxHeight / 2);
+
+        // 1. THE GLASS PANEL (Black with 150/255 Opacity)
+        // Note: If 'DrawingArea' is red, try 'Rasterizer2D'
+        Rasterizer2D.drawTransparentBox(boxX, boxY, boxWidth, boxHeight, 0x000000, 150);
+
+        // 2. THE ECLIPSE BORDER (Glowing Gold/Orange)
+        Rasterizer2D.drawBoxOutline(boxX, boxY, boxWidth, boxHeight, 0xD4A017);
+        // A second fainter line for a "glow" effect
+        Rasterizer2D.drawTransparentBox(1, 1, 358, 198, 0xD4A017, 50);
+
+        // 3. TITLE TEXT (Shadowed)
+        // If 'newBoldFont' is red, try 'boldFont' or 'aTextDrawingArea_1271'
+        newBoldFont.drawCenteredString("RUNE ECLIPSE", centerX + 1, boxY + 31, 0x000000, 0); // Shadow
+        newBoldFont.drawCenteredString("RUNE ECLIPSE", centerX, boxY + 30, 0xD4A017, 0); // Gold Text
+
+        // 4. INSTRUCTION TEXT
+        newRegularFont.drawCenteredString("Enter your credentials below", centerX, boxY + 55, 0xAAAAAA, 0);
+    }
+    // --- BACKGROUND OVERRIDE START ---
+    // We add this variable to cache the image
+    private java.awt.Image loginWallpaper;
+// --- PASTE THIS AT THE VERY BOTTOM OF CLIENT.JAVA ---
+
+    // 1. Define the variable for the image
+// --- PASTE THIS AT THE BOTTOM OF CLIENT.JAVA ---
+    private Sprite customBackground;
+
+    private void drawCustomBackground() {
+        // 1. Force the drawing area to be huge inside this method
+        // This guarantees that nothing can cut off the image/color.
+        Rasterizer2D.setDrawingArea(5000, 0, 5000, 0);
+
+        if (customBackground == null) {
+            try {
+                String path1 = "ElvargClient/background.jpg";
+                String path2 = "background.jpg";
+
+                if (new java.io.File(path1).exists()) {
+                    System.out.println("[DEBUG] Found background at: " + path1);
+                    customBackground = new Sprite(path1);
+                } else if (new java.io.File(path2).exists()) {
+                    System.out.println("[DEBUG] Found background at: " + path2);
+                    customBackground = new Sprite(path2);
+                } else {
+                    // Keep this error silent or print once to avoid spam,
+                    // but for now let's print it so we know.
+                    System.out.println("[DEBUG] ERROR: Could not find background.jpg");
+                }
+            } catch (Exception e) { e.printStackTrace(); }
+        }
+
+        if (customBackground != null) {
+            customBackground.drawSprite(0, 0);
+        } else {
+            // --- THE BRIGHT RED TEST ---
+            // If the image is missing, turn the screen BRIGHT RED.
+            // If you see Red, the code works perfectly.
+            Rasterizer2D.fillRectangle(0, 0, 5000, 5000, 0xFF0000);
+        }
+    }
+        // ... other code above ...
+
+
+// ==========================================================
+// --- MASTER FIX BLOCK: PASTE AT VERY END OF CLIENT.JAVA ---
+// ==========================================================
+
+// 1. RESTORED: This fixes the 700+ errors
+
+// 3. THE RED SCREEN TEST (The "Face")
+private boolean isFriendOrSelf(String s) {
+    if (s == null) return false;
+    for (int i = 0; i < friendsCount; i++) {
+        if (s.equalsIgnoreCase(friendsList[i])) return true;
+    }
+    if (localPlayer != null && localPlayer.name != null) {
+        if (localPlayer.name.equalsIgnoreCase(s)) return true;
+    }
+    return false;
 }
+
+    // 2. THE BRAIN: Controls what screen is shown (Login vs Game)
+    public void processDrawing() {
+        if (rsAlreadyLoaded || loadingError || genericLoadingError) {
+            showErrorScreen();
+            return;
+        }
+
+        if (!loggedIn) {
+            processLoginScreenInput();
+            drawLoginScreen(rsAlreadyLoaded);
+        } else {
+            // ============================================================
+            // --- THE GRAPHICS KICKSTARTER (Fixes NullPointerException) ---
+            // ============================================================
+// ============================================================
+            // --- THE GRAPHICS KICKSTARTER (Now fixes Game AND Chat) ---
+            // ============================================================
+
+            // 1. Main Game Screen (765 x 503)
+            if (gameScreenImageProducer == null) {
+                gameScreenImageProducer = new com.runescape.draw.ProducingGraphicsBuffer(765, 503);
+            }
+
+            // 2. Chat Area (Standard size: 512 x 165)
+            // This fixes your current NullPointerException
+            if (chatSettingImageProducer == null) {
+                chatSettingImageProducer = new com.runescape.draw.ProducingGraphicsBuffer(512, 165);
+            }
+
+            // 3. (Proactive Fix) Tab/Inventory Area
+            // You will likely crash here next, so let's fix it now!
+            // Note: If 'tabAreaImageProducer' turns RED, just delete these 3 lines.
+            // ============================================================
+            // ============================================================
+
+            // --- CRASH SAFETY NET ---
+            try {
+                drawGameScreen();
+            } catch (Exception e) {
+                System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                System.out.println("CRASH DETECTED IN GAME SCREEN:");
+                e.printStackTrace();
+                System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            }
+        }
+    }
+
+    // 3. THE INPUT LISTENER: Handles Typing and Clicking
+    // 4. THE PAINTER: Draws the Background and Text
+    private void drawLoginScreen(boolean flag) {
+        try {
+            if (antiFlickerBuffer == null) {
+                antiFlickerBuffer = new java.awt.image.BufferedImage(765, 503, java.awt.image.BufferedImage.TYPE_INT_RGB);
+            }
+            java.awt.Graphics g = antiFlickerBuffer.getGraphics();
+
+            // Background
+            java.awt.Image bg = java.awt.Toolkit.getDefaultToolkit().getImage("background.jpg");
+            g.drawImage(bg, 0, 0, 765, 503, null);
+
+            // Box
+            g.setColor(new java.awt.Color(10, 10, 10, 180));
+            g.fillRect(232, 160, 300, 150);
+            g.setColor(new java.awt.Color(200, 150, 0));
+            g.drawRect(232, 160, 300, 150);
+
+            // Text
+            g.setFont(new java.awt.Font("Verdana", 1, 14));
+            g.setColor(java.awt.Color.YELLOW);
+            g.drawString("RuneEclipse Login", 310, 190);
+
+            g.setFont(new java.awt.Font("Verdana", 0, 12));
+            if (loginScreenCursorPos == 0) g.setColor(java.awt.Color.YELLOW); else g.setColor(java.awt.Color.WHITE);
+            g.drawString("Username: " + (myUsername == null ? "" : myUsername) + (loginScreenCursorPos == 0 ? "*" : ""), 250, 230);
+
+            if (loginScreenCursorPos == 1) g.setColor(java.awt.Color.YELLOW); else g.setColor(java.awt.Color.WHITE);
+            String pass = (myPassword == null) ? "" : myPassword.replaceAll(".", "*");
+            g.drawString("Password: " + pass + (loginScreenCursorPos == 1 ? "*" : ""), 250, 260);
+
+            // Status Messages
+            g.setColor(java.awt.Color.CYAN);
+            if (loginMessage1 != null) g.drawString(loginMessage1, 250, 295);
+            if (loginMessage2 != null) g.drawString(loginMessage2, 250, 310);
+
+            // Flush to Screen
+            java.awt.Graphics screen = getGameComponent().getGraphics();
+            if (screen == null) screen = super.graphics;
+            if (screen != null) screen.drawImage(antiFlickerBuffer, 0, 0, null);
+            g.dispose();
+
+        } catch (Exception e) { System.out.println("Draw Error: " + e.getMessage()); }
+    }
+
+} // <--- FINAL CLOSING BRACKET
